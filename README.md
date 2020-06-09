@@ -37,7 +37,7 @@ LazyDataTable(
   cellWidth: 100,
   columnHeaderHeight: 150,
   rowHeaderWidth: 150,
-  columnHeaderBuilder: (i) => Text("Col:$(i+1)"),
+  columnHeaderBuilder: (i) => Text("Col:${i+1}"),
   rowHeaderBuilder: (i) => Text("Row:${i+1}"),
   dataCellBuilder: (i, j) => Text("Cell:$i,$j"),
   cornerWidget: Text("Corner"),

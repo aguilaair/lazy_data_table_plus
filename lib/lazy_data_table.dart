@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 /// Create a lazily loaded data table.
 ///
 /// The table is [columns] by [rows] big.
+/// The [columnHeaderBuilder] and [rowHeaderBuilder] are optional,
+/// and when either of those is not given, the corner widget should also not be given.
 class LazyDataTable extends StatefulWidget {
   LazyDataTable({
     Key key,
@@ -27,10 +29,10 @@ class LazyDataTable extends StatefulWidget {
     this.rowHeaderWidth = 50,
 
     // Builder function for the column header
-    @required this.columnHeaderBuilder,
+    this.columnHeaderBuilder,
 
     // Builder function for the row header
-    @required this.rowHeaderBuilder,
+    this.rowHeaderBuilder,
 
     // Builder function for the data cell
     @required this.dataCellBuilder,
@@ -44,36 +46,46 @@ class LazyDataTable extends StatefulWidget {
     assert(cellHeight != null);
     assert(columnHeaderHeight != null);
     assert(rowHeaderWidth != null);
-    assert(columnHeaderBuilder != null);
-    assert(rowHeaderBuilder != null);
     assert(dataCellBuilder != null);
+    if (rowHeaderBuilder == null || columnHeaderBuilder == null) {
+      assert(cornerWidget == null,
+          "The corner widget is only allowed when you have both a column header and a row header.");
+    }
   }
+
   /// The state class that contains the table.
   final table = _LazyDataTableState();
 
   // Amount of cells
   /// The number of columns in the table.
   final int columns;
+
   /// The number of rows in the table.
   final int rows;
 
   // Size of cells and headers
   /// The width of a cell and a column header.
   final double cellWidth;
+
   /// The height of a cell and a row header.
   final double cellHeight;
+
   /// The height of a column header.
   final double columnHeaderHeight;
+
   /// The width of a column headers.
   final double rowHeaderWidth;
 
   // Builder functions
   /// The builder function for a column header.
   final Widget Function(int columnIndex) columnHeaderBuilder;
+
   /// The builder function for a row header.
   final Widget Function(int rowIndex) rowHeaderBuilder;
+
   /// The builder function for a data cell.
   final Widget Function(int columnIndex, int rowIndex) dataCellBuilder;
+
   /// The widget for the upper-left corner.
   final Widget cornerWidget;
 
@@ -102,66 +114,73 @@ class _LazyDataTableState extends State<LazyDataTable> {
   Widget build(BuildContext context) {
     return Row(
       children: <Widget>[
-        SizedBox(
-          width: widget.rowHeaderWidth,
-          child: Column(
-            children: <Widget>[
-              // Corner widget
-              SizedBox(
-                height: widget.columnHeaderHeight,
-                child: widget.cornerWidget,
-              ),
-              // Row headers
-              Expanded(
-                child: NotificationListener(
-                  onNotification: (ScrollNotification notification) {
-                    _verticalControllers.processNotification(notification, 1);
-                    return true;
-                  },
-                  child: ListView.builder(
-                      scrollDirection: Axis.vertical,
-                      controller: _verticalControllers.addController(1),
-                      itemCount: widget.rows,
-                      itemBuilder: (__, i) {
-                        return Container(
-                          height: widget.cellHeight,
-                          width: widget.rowHeaderWidth,
-                          decoration: BoxDecoration(border: Border.all()),
-                          child: widget.rowHeaderBuilder(i),
-                        );
-                      }),
+        widget.rowHeaderBuilder != null
+            ? SizedBox(
+                width: widget.rowHeaderWidth,
+                child: Column(
+                  children: <Widget>[
+                    // Corner widget
+                    SizedBox(
+                      height: widget.columnHeaderHeight,
+                      child: widget.cornerWidget != null
+                          ? widget.cornerWidget
+                          : Container(),
+                    ),
+                    // Row headers
+                    Expanded(
+                      child: NotificationListener(
+                        onNotification: (ScrollNotification notification) {
+                          _verticalControllers.processNotification(
+                              notification, 1);
+                          return true;
+                        },
+                        child: ListView.builder(
+                            scrollDirection: Axis.vertical,
+                            controller: _verticalControllers.addController(1),
+                            itemCount: widget.rows,
+                            itemBuilder: (__, i) {
+                              return Container(
+                                height: widget.cellHeight,
+                                width: widget.rowHeaderWidth,
+                                decoration: BoxDecoration(border: Border.all()),
+                                child: widget.rowHeaderBuilder(i),
+                              );
+                            }),
+                      ),
+                    )
+                  ],
                 ),
               )
-            ],
-          ),
-        ),
+            : Container(),
         Expanded(
             child: Column(
           children: <Widget>[
             // Column headers
-            SizedBox(
-              height: widget.columnHeaderHeight,
-              child: NotificationListener(
-                onNotification: (ScrollNotification notification) {
-                  _horizontalControllers.processNotification(
-                      notification, widget.rows);
-                  return true;
-                },
-                child: ListView.builder(
-                    scrollDirection: Axis.horizontal,
-                    controller:
-                        _horizontalControllers.addController(widget.rows),
-                    itemCount: widget.columns,
-                    itemBuilder: (__, i) {
-                      return Container(
-                        height: widget.columnHeaderHeight,
-                        width: widget.cellWidth,
-                        decoration: BoxDecoration(border: Border.all()),
-                        child: widget.columnHeaderBuilder(i),
-                      );
-                    }),
-              ),
-            ),
+            widget.columnHeaderBuilder != null
+                ? SizedBox(
+                    height: widget.columnHeaderHeight,
+                    child: NotificationListener(
+                      onNotification: (ScrollNotification notification) {
+                        _horizontalControllers.processNotification(
+                            notification, widget.rows);
+                        return true;
+                      },
+                      child: ListView.builder(
+                          scrollDirection: Axis.horizontal,
+                          controller:
+                              _horizontalControllers.addController(widget.rows),
+                          itemCount: widget.columns,
+                          itemBuilder: (__, i) {
+                            return Container(
+                              height: widget.columnHeaderHeight,
+                              width: widget.cellWidth,
+                              decoration: BoxDecoration(border: Border.all()),
+                              child: widget.columnHeaderBuilder(i),
+                            );
+                          }),
+                    ),
+                  )
+                : Container(),
             // Main data
             Expanded(
               child: NotificationListener(

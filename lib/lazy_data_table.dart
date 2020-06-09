@@ -2,6 +2,9 @@ library lazy_data_table;
 
 import 'package:flutter/material.dart';
 
+/// Create a lazily loaded data table.
+///
+/// The table is [columns] by [rows] big.
 class LazyDataTable extends StatefulWidget {
   LazyDataTable({
     Key key,
@@ -45,26 +48,39 @@ class LazyDataTable extends StatefulWidget {
     assert(rowHeaderBuilder != null);
     assert(dataCellBuilder != null);
   }
-
+  /// The state class that contains the table.
   final table = _LazyDataTableState();
 
   // Amount of cells
+  /// The number of columns in the table.
   final int columns;
+  /// The number of rows in the table.
   final int rows;
+
   // Size of cells and headers
+  /// The width of a cell and a column header.
   final double cellWidth;
+  /// The height of a cell and a row header.
   final double cellHeight;
+  /// The height of a column header.
   final double columnHeaderHeight;
+  /// The width of a column headers.
   final double rowHeaderWidth;
+
   // Builder functions
+  /// The builder function for a column header.
   final Widget Function(int columnIndex) columnHeaderBuilder;
+  /// The builder function for a row header.
   final Widget Function(int rowIndex) rowHeaderBuilder;
+  /// The builder function for a data cell.
   final Widget Function(int columnIndex, int rowIndex) dataCellBuilder;
+  /// The widget for the upper-left corner.
   final Widget cornerWidget;
 
   @override
   _LazyDataTableState createState() => table;
 
+  /// Jump the table to the given location.
   void jumpTo(int column, int row) {
     table.jumpTo(column, row);
   }
@@ -192,12 +208,25 @@ class _LazyDataTableState extends State<LazyDataTable> {
     );
   }
 
+  /// Jump the table to the given location.
   jumpTo(int column, int row) {
     _horizontalControllers.jumpTo(column * widget.cellWidth);
     _verticalControllers.jumpTo(row * widget.cellHeight);
   }
 }
 
+/// A synchronized scroll controller.
+///
+/// The controller has at most [size] controllers, which will all
+/// synchronize if they contain a position.
+///
+/// Right now, to make sure the controllers stay in sync,
+/// they are able to be updated by the other direction if that direction is scrolled.
+/// (e.g. if you scroll down, the horizontal sync controller
+/// is updated so that the new controllers are synced)
+/// Ideally a controller should automatically sync itself when it loads.
+/// This way you don't need to link the sync controllers anymore.
+/// But I haven't figured out a good way to do this yet.
 class _SyncScrollController {
   _SyncScrollController(int size) {
     _scrollControllers = List<ScrollController>(size);

@@ -1,0 +1,15 @@
+name: example
+description: example
+
+dependencies:
+  flutter:
+    sdk: flutter
+  lazy_data_table:
+    path: ../
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  uses-material-design: true

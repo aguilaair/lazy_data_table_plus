@@ -1,5 +1,5 @@
 name: lazy_data_table
-description: A Flutter data table that can be loaded lazily
+description: A Flutter data table with sticky row and column headers that loads the contents lazily.
 version: 0.0.1
 homepage: https://gitlab.com/_Naomi/lazy_data_table
 

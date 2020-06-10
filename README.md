@@ -3,7 +3,7 @@
 A Flutter widget data table that can be loaded lazily. The table also has a column header row and a row header column that will stay in view.
 (This widget is still in development, and may not work 100%)
 
-This widget is based on [table-sticky-headers](https://pub.dev/packages/table_sticky_headers) made by Alex Babich, so credits to him.
+This widget is based on [table-sticky-headers](https://pub.dev/packages/table_sticky_headers) made by Alex Bacich, so credits to him.
 
 ## Features
 
@@ -29,7 +29,7 @@ Then the package can be included in a file with:
 import 'package:lazy_data_table/lazy_data_table.dart';
 ```
 
-And then the LazyDataTable can be used as following:
+And then the LazyDataTable can be used as following:  
 (This example is used to create the table in the gif above)
 
 ```dart
@@ -59,6 +59,5 @@ LazyDataTable(
 ),
 ```
 
-## Known issues
-Currently, whenever you scroll vertically, every row that is currently loaded has their offset corrected to make sure every line is at the same position.
-This isn't ideal as it causes a lot of unnecessary updates. Ideally you'd only want the row to be updated once when it's loaded, but I can't seem to figure that out :/
+## issues
+If you have any problems or even suggestions feel free leave them [here](https://gitlab.com/_Naomi/lazy_data_table/-/issues)

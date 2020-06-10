@@ -1,6 +1,7 @@
 library lazy_data_table;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/painting.dart';
 
 /// Create a lazily loaded data table.
 ///
@@ -10,42 +11,32 @@ import 'package:flutter/material.dart';
 class LazyDataTable extends StatefulWidget {
   LazyDataTable({
     Key key,
-    // Number of data columns
+    // Number of data columns.
     @required this.columns,
 
-    // Number of data rows
+    // Number of data rows.
     @required this.rows,
 
-    // Width of a cell
-    this.cellWidth = 50,
+    // Dimensions of the table elements.
+    this.tableDimensions = const DataTableDimensions(),
 
-    // Height of a cell
-    this.cellHeight = 50,
+    // Theme of the table elements.
+    this.tableTheme = const DataTableTheme(),
 
-    // Height of the column headers
-    this.columnHeaderHeight = 50,
-
-    // Width of the row headers
-    this.rowHeaderWidth = 50,
-
-    // Builder function for the column header
+    // Builder function for the column header.
     this.columnHeaderBuilder,
 
-    // Builder function for the row header
+    // Builder function for the row header.
     this.rowHeaderBuilder,
 
-    // Builder function for the data cell
+    // Builder function for the data cell.
     @required this.dataCellBuilder,
 
-    // Corner widget
+    // Corner widget.
     this.cornerWidget,
   }) : super(key: key) {
     assert(columns != null);
     assert(rows != null);
-    assert(cellWidth != null);
-    assert(cellHeight != null);
-    assert(columnHeaderHeight != null);
-    assert(rowHeaderWidth != null);
     assert(dataCellBuilder != null);
     if (rowHeaderBuilder == null || columnHeaderBuilder == null) {
       assert(cornerWidget == null,
@@ -64,17 +55,12 @@ class LazyDataTable extends StatefulWidget {
   final int rows;
 
   // Size of cells and headers
-  /// The width of a cell and a column header.
-  final double cellWidth;
+  /// The dimensions of the table cells and headers.
+  final DataTableDimensions tableDimensions;
 
-  /// The height of a cell and a row header.
-  final double cellHeight;
-
-  /// The height of a column header.
-  final double columnHeaderHeight;
-
-  /// The width of a column headers.
-  final double rowHeaderWidth;
+  // Theme of the table
+  /// The theme of the table cells and headers.
+  final DataTableTheme tableTheme;
 
   // Builder functions
   /// The builder function for a column header.
@@ -108,22 +94,29 @@ class _LazyDataTableState extends State<LazyDataTable> {
       children: <Widget>[
         widget.rowHeaderBuilder != null
             ? SizedBox(
-                width: widget.rowHeaderWidth,
+                width: widget.tableDimensions.rowHeaderWidth,
                 child: Column(
                   children: <Widget>[
                     // Corner widget
                     SizedBox(
-                      height: widget.columnHeaderHeight,
+                      height: widget.tableDimensions.columnHeaderHeight,
+                      width: widget.tableDimensions.rowHeaderWidth,
                       child: widget.cornerWidget != null
-                          ? widget.cornerWidget
+                          ? Container(
+                              decoration: BoxDecoration(
+                                color: widget.tableTheme.cornerColor,
+                                border: widget.tableTheme.cornerBorder,
+                              ),
+                              child: widget.cornerWidget,
+                            )
                           : Container(),
                     ),
                     // Row headers
                     Expanded(
                       child: NotificationListener(
                         onNotification: (ScrollNotification notification) {
-                          _verticalControllers.processNotification(
-                              notification);
+                          _verticalControllers
+                              .processNotification(notification);
                           return true;
                         },
                         child: ListView.builder(
@@ -132,9 +125,12 @@ class _LazyDataTableState extends State<LazyDataTable> {
                             itemCount: widget.rows,
                             itemBuilder: (__, i) {
                               return Container(
-                                height: widget.cellHeight,
-                                width: widget.rowHeaderWidth,
-                                decoration: BoxDecoration(border: Border.all()),
+                                height: widget.tableDimensions.cellHeight,
+                                width: widget.tableDimensions.rowHeaderWidth,
+                                decoration: BoxDecoration(
+                                  color: widget.tableTheme.rowHeaderColor,
+                                  border: widget.tableTheme.rowHeaderBorder,
+                                ),
                                 child: widget.rowHeaderBuilder(i),
                               );
                             }),
@@ -150,23 +146,25 @@ class _LazyDataTableState extends State<LazyDataTable> {
             // Column headers
             widget.columnHeaderBuilder != null
                 ? SizedBox(
-                    height: widget.columnHeaderHeight,
+                    height: widget.tableDimensions.columnHeaderHeight,
                     child: NotificationListener(
                       onNotification: (ScrollNotification notification) {
-                        _horizontalControllers.processNotification(
-                            notification);
+                        _horizontalControllers
+                            .processNotification(notification);
                         return true;
                       },
                       child: ListView.builder(
                           scrollDirection: Axis.horizontal,
-                          controller:
-                              _horizontalControllers,
+                          controller: _horizontalControllers,
                           itemCount: widget.columns,
                           itemBuilder: (__, i) {
                             return Container(
-                              height: widget.columnHeaderHeight,
-                              width: widget.cellWidth,
-                              decoration: BoxDecoration(border: Border.all()),
+                              height: widget.tableDimensions.columnHeaderHeight,
+                              width: widget.tableDimensions.cellWidth,
+                              decoration: BoxDecoration(
+                                color: widget.tableTheme.columnHeaderColor,
+                                border: widget.tableTheme.columnHeaderBorder,
+                              ),
                               child: widget.columnHeaderBuilder(i),
                             );
                           }),
@@ -187,24 +185,26 @@ class _LazyDataTableState extends State<LazyDataTable> {
                     itemCount: widget.rows,
                     itemBuilder: (_, i) {
                       return SizedBox(
-                        height: widget.cellHeight,
+                        height: widget.tableDimensions.cellHeight,
                         child: NotificationListener(
                           onNotification: (ScrollNotification notification) {
-                            _horizontalControllers.processNotification(
-                                notification);
+                            _horizontalControllers
+                                .processNotification(notification);
                             return true;
                           },
                           child: ListView.builder(
                               scrollDirection: Axis.horizontal,
                               shrinkWrap: true,
-                              controller:
-                                  _horizontalControllers,
+                              controller: _horizontalControllers,
                               itemCount: widget.columns,
                               itemBuilder: (__, j) {
                                 return Container(
-                                  height: widget.cellHeight,
-                                  width: widget.cellWidth,
-                                  //decoration: BoxDecoration(border: Border.all()),
+                                  height: widget.tableDimensions.cellHeight,
+                                  width: widget.tableDimensions.cellWidth,
+                                  decoration: BoxDecoration(
+                                    color: widget.tableTheme.cellColor,
+                                    border: widget.tableTheme.cellBorder,
+                                  ),
                                   child: widget.dataCellBuilder(i, j),
                                 );
                               }),
@@ -221,9 +221,69 @@ class _LazyDataTableState extends State<LazyDataTable> {
 
   /// Jump the table to the given location.
   jumpTo(int column, int row) {
-    _horizontalControllers.jumpTo(column * widget.cellWidth);
-    _verticalControllers.jumpTo(row * widget.cellHeight);
+    _horizontalControllers.jumpTo(column * widget.tableDimensions.cellWidth);
+    _verticalControllers.jumpTo(row * widget.tableDimensions.cellHeight);
   }
+}
+
+/// Data class for the dimensions of a [LazyDataTable].
+class DataTableDimensions {
+  const DataTableDimensions({
+    /// Height of a cell and row header.
+    this.cellHeight = 50,
+
+    /// Width of a cell and column header.
+    this.cellWidth = 50,
+
+    /// Height of a column header.
+    this.columnHeaderHeight = 50,
+
+    /// Width of a row header.
+    this.rowHeaderWidth = 50,
+  });
+
+  final double cellHeight;
+  final double cellWidth;
+  final double columnHeaderHeight;
+  final double rowHeaderWidth;
+}
+
+class DataTableTheme {
+  const DataTableTheme({
+    /// [BoxBorder] for the column header.
+    this.columnHeaderBorder,
+
+    /// [BoxBorder] for the row header.
+    this.rowHeaderBorder,
+
+    /// [BoxBorder] for the cell.
+    this.cellBorder,
+
+    /// [BoxBorder] for the corner widget.
+    this.cornerBorder,
+
+    /// [Color] for the column header.
+    this.columnHeaderColor,
+
+    /// [Color] for the row header.
+    this.rowHeaderColor,
+
+    /// [Color] for the cell.
+    this.cellColor,
+
+    /// [Color] for the corner widget.
+    this.cornerColor = Colors.white,
+  });
+
+  final BoxBorder columnHeaderBorder;
+  final BoxBorder rowHeaderBorder;
+  final BoxBorder cellBorder;
+  final BoxBorder cornerBorder;
+
+  final Color columnHeaderColor;
+  final Color rowHeaderColor;
+  final Color cellColor;
+  final Color cornerColor;
 }
 
 /// A custom synchronized scroll controller.

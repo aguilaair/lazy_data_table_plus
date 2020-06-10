@@ -12,13 +12,15 @@ This widget is based on [table-sticky-headers](https://pub.dev/packages/table_st
 * Row header column stays in view
 * Items are loaded lazily
 
+![img not loaded](https://gitlab.com/_Naomi/lazy_data_table/-/raw/master/example/lazy_data_table_example.gif "lazy_data_table example")
+
 ## Usage
 
-To use this widget, add `lazy_data_table: ^0.1.2` to your dependencies in `pubspec.yaml`
+To use this widget, add `lazy_data_table: ^0.1.3` to your dependencies in `pubspec.yaml`
 
 ```yaml
 dependencies:
-  lazy_data_table: ^0.1.2
+  lazy_data_table: ^0.1.3
 ```
 
 Then the package can be included in a file with:
@@ -28,19 +30,32 @@ import 'package:lazy_data_table/lazy_data_table.dart';
 ```
 
 And then the LazyDataTable can be used as following:
+(This example is used to create the table in the gif above)
 
 ```dart
 LazyDataTable(
-  rows: 20,
-  columns: 20,
-  cellHeight: 50,
-  cellWidth: 50,
-  columnHeaderHeight: 75,
-  rowHeaderWidth: 75,
-  columnHeaderBuilder: (i) => Text("Col:${i+1}"),
-  rowHeaderBuilder: (i) => Text("Row:${i+1}"),
-  dataCellBuilder: (i, j) => Text("Cell:$i,$j"),
-  cornerWidget: Text("Corner"),
+  rows: 100,
+  columns: 100,
+  tableDimensions: DataTableDimensions(
+    cellHeight: 50,
+    cellWidth: 100,
+    columnHeaderHeight: 50,
+    rowHeaderWidth: 75,
+  ),
+  tableTheme: DataTableTheme(
+    columnHeaderBorder: Border.all(color: Colors.black38),
+    rowHeaderBorder: Border.all(color: Colors.black38),
+    cellBorder: Border.all(color: Colors.black12),
+    cornerBorder: Border.all(color: Colors.black38),
+    columnHeaderColor: Colors.white60,
+    rowHeaderColor: Colors.white60,
+    cellColor: Colors.white,
+    cornerColor: Colors.white38,
+  ),
+  columnHeaderBuilder: (i) => Center(child: Text("Column: ${i + 1}")),
+  rowHeaderBuilder: (i) => Center(child: Text("Row: ${i + 1}")),
+  dataCellBuilder: (i, j) => Center(child: Text("Cell: $i, $j")),
+  cornerWidget: Center(child: Text("Corner")),
 ),
 ```
 

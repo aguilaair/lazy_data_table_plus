@@ -1,3 +1,9 @@
+## [0.1.3]
+
+* Added DataTableDimensions, which holds information about the dimensions of the table.
+* Added DataTableTheme, which holds information about the colors and borders of the table.
+* Added example gif to the README.
+
 ## [0.1.2]
 
 * Updated synchronized ScrollController to be more efficient.

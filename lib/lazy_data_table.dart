@@ -229,60 +229,60 @@ class _LazyDataTableState extends State<LazyDataTable> {
 /// Data class for the dimensions of a [LazyDataTable].
 class DataTableDimensions {
   const DataTableDimensions({
-    /// Height of a cell and row header.
     this.cellHeight = 50,
-
-    /// Width of a cell and column header.
     this.cellWidth = 50,
-
-    /// Height of a column header.
     this.columnHeaderHeight = 50,
-
-    /// Width of a row header.
     this.rowHeaderWidth = 50,
   });
 
+  /// Height of a cell and row header.
   final double cellHeight;
+
+  /// Width of a cell and column header.
   final double cellWidth;
+
+  /// Height of a column header.
   final double columnHeaderHeight;
+
+  /// Width of a row header.
   final double rowHeaderWidth;
 }
 
+/// Data class for the theme of a [LazyDataTable].
 class DataTableTheme {
   const DataTableTheme({
-    /// [BoxBorder] for the column header.
     this.columnHeaderBorder,
-
-    /// [BoxBorder] for the row header.
     this.rowHeaderBorder,
-
-    /// [BoxBorder] for the cell.
     this.cellBorder,
-
-    /// [BoxBorder] for the corner widget.
     this.cornerBorder,
-
-    /// [Color] for the column header.
     this.columnHeaderColor,
-
-    /// [Color] for the row header.
     this.rowHeaderColor,
-
-    /// [Color] for the cell.
     this.cellColor,
-
-    /// [Color] for the corner widget.
-    this.cornerColor = Colors.white,
+    this.cornerColor,
   });
 
+  /// [BoxBorder] for the column header.
   final BoxBorder columnHeaderBorder;
+
+  /// [BoxBorder] for the row header.
   final BoxBorder rowHeaderBorder;
+
+  /// [BoxBorder] for the cell.
   final BoxBorder cellBorder;
+
+  /// [BoxBorder] for the corner widget.
   final BoxBorder cornerBorder;
 
+  /// [Color] for the column header.
   final Color columnHeaderColor;
+
+  /// [Color] for the row header.
   final Color rowHeaderColor;
+
+  /// [Color] for the cell.
   final Color cellColor;
+
+  /// [Color] for the corner widget.
   final Color cornerColor;
 }
 

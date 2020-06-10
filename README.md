@@ -14,11 +14,11 @@ This widget is based on the [sticky-headers-table](https://github.com/AlexBacich
 
 ## Usage
 
-To use this widget, add `lazy_data_table: ^0.1.1` to your dependencies in `pubspec.yaml`
+To use this widget, add `lazy_data_table: ^0.1.2` to your dependencies in `pubspec.yaml`
 
 ```yaml
 dependencies:
-  lazy_data_table: ^0.1.1
+  lazy_data_table: ^0.1.2
 ```
 
 Then the package can be included in a file with:

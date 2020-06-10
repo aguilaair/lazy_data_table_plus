@@ -59,5 +59,5 @@ LazyDataTable(
 ),
 ```
 
-## issues
+## Issues
 If you have any problems or even suggestions feel free leave them [here](https://gitlab.com/_Naomi/lazy_data_table/-/issues)

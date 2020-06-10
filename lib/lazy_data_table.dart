@@ -99,15 +99,8 @@ class LazyDataTable extends StatefulWidget {
 }
 
 class _LazyDataTableState extends State<LazyDataTable> {
-  _CustomScrollController _horizontalControllers;
-  _CustomScrollController _verticalControllers;
-
-  @override
-  void initState() {
-    super.initState();
-    this._horizontalControllers = _CustomScrollController();
-    this._verticalControllers = _CustomScrollController();
-  }
+  _CustomScrollController _horizontalControllers = _CustomScrollController();
+  _CustomScrollController _verticalControllers = _CustomScrollController();
 
   @override
   Widget build(BuildContext context) {

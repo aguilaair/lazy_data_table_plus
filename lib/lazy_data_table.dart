@@ -99,15 +99,14 @@ class LazyDataTable extends StatefulWidget {
 }
 
 class _LazyDataTableState extends State<LazyDataTable> {
-  _SyncScrollController _horizontalControllers;
-  _SyncScrollController _verticalControllers;
+  _CustomScrollController _horizontalControllers;
+  _CustomScrollController _verticalControllers;
 
   @override
   void initState() {
     super.initState();
-    this._horizontalControllers = _SyncScrollController(widget.rows + 1);
-    this._verticalControllers = _SyncScrollController(2);
-    this._verticalControllers.setOtherAxis(_horizontalControllers);
+    this._horizontalControllers = _CustomScrollController();
+    this._verticalControllers = _CustomScrollController();
   }
 
   @override
@@ -131,12 +130,12 @@ class _LazyDataTableState extends State<LazyDataTable> {
                       child: NotificationListener(
                         onNotification: (ScrollNotification notification) {
                           _verticalControllers.processNotification(
-                              notification, 1);
+                              notification);
                           return true;
                         },
                         child: ListView.builder(
                             scrollDirection: Axis.vertical,
-                            controller: _verticalControllers.addController(1),
+                            controller: _verticalControllers,
                             itemCount: widget.rows,
                             itemBuilder: (__, i) {
                               return Container(
@@ -162,13 +161,13 @@ class _LazyDataTableState extends State<LazyDataTable> {
                     child: NotificationListener(
                       onNotification: (ScrollNotification notification) {
                         _horizontalControllers.processNotification(
-                            notification, widget.rows);
+                            notification);
                         return true;
                       },
                       child: ListView.builder(
                           scrollDirection: Axis.horizontal,
                           controller:
-                              _horizontalControllers.addController(widget.rows),
+                              _horizontalControllers,
                           itemCount: widget.columns,
                           itemBuilder: (__, i) {
                             return Container(
@@ -185,13 +184,13 @@ class _LazyDataTableState extends State<LazyDataTable> {
             Expanded(
               child: NotificationListener(
                 onNotification: (ScrollNotification notification) {
-                  _verticalControllers.processNotification(notification, 0);
+                  _verticalControllers.processNotification(notification);
                   return true;
                 },
                 child: ListView.builder(
                     scrollDirection: Axis.vertical,
                     shrinkWrap: true,
-                    controller: _verticalControllers.addController(0),
+                    controller: _verticalControllers,
                     itemCount: widget.rows,
                     itemBuilder: (_, i) {
                       return SizedBox(
@@ -199,14 +198,14 @@ class _LazyDataTableState extends State<LazyDataTable> {
                         child: NotificationListener(
                           onNotification: (ScrollNotification notification) {
                             _horizontalControllers.processNotification(
-                                notification, i);
+                                notification);
                             return true;
                           },
                           child: ListView.builder(
                               scrollDirection: Axis.horizontal,
                               shrinkWrap: true,
                               controller:
-                                  _horizontalControllers.addController(i),
+                                  _horizontalControllers,
                               itemCount: widget.columns,
                               itemBuilder: (__, j) {
                                 return Container(
@@ -234,74 +233,44 @@ class _LazyDataTableState extends State<LazyDataTable> {
   }
 }
 
-/// A synchronized scroll controller.
+/// A custom synchronized scroll controller.
 ///
-/// The controller has at most [size] controllers, which will all
-/// synchronize if they contain a position.
-///
-/// Right now, to make sure the controllers stay in sync,
-/// they are able to be updated by the other direction if that direction is scrolled.
-/// (e.g. if you scroll down, the horizontal sync controller
-/// is updated so that the new controllers are synced)
-/// Ideally a controller should automatically sync itself when it loads.
-/// This way you don't need to link the sync controllers anymore.
-/// But I haven't figured out a good way to do this yet.
-class _SyncScrollController {
-  _SyncScrollController(int size) {
-    _scrollControllers = List<ScrollController>(size);
-  }
-  // TODO: Better solution for this.
-  // It should just go to the _offset on load/attach, but I can't seem to figure that out.
-  _SyncScrollController _otherAxis;
-  List<ScrollController> _scrollControllers;
-
-  ScrollController _scrollingController;
-  bool _scrollingActive = false;
+/// This controller stores all their attached [ScrollPosition] in a list,
+/// and when given a notification via [processNotification], it will scroll
+/// every ScrollPosition in that list to the same [_offset].
+class _CustomScrollController extends ScrollController {
+  List<ScrollPosition> _positions = List();
   double _offset = 0;
 
-  setOtherAxis(_SyncScrollController other) {
-    _otherAxis = other;
+  /// Stores given [ScrollPosition] in the list and
+  /// set the initial offset of that ScrollPosition.
+  @override
+  void attach(ScrollPosition position) {
+    position.correctPixels(_offset);
+    _positions.add(position);
   }
 
-  ScrollController addController(int i) {
-    var temp = ScrollController();
-    _scrollControllers[i] = temp;
-    return temp;
+  /// Removes given [ScrollPostion] from the list.
+  @override
+  void detach(ScrollPosition position) {
+    _positions.remove(position);
   }
 
-  jumpTo(double value) {
-    _offset = value;
-    update();
-  }
-
-  update() {
-    for (ScrollController controller in _scrollControllers) {
-      if (identical(_scrollingController, controller)) continue;
-      if (controller != null && controller.hasClients) {
-        controller.jumpTo(_offset);
-      }
+  /// Processes notification from one of the [ScrollPositions] in the list.
+  processNotification(ScrollNotification notification) {
+    if (notification is ScrollUpdateNotification) {
+      jumpTo(notification.metrics.pixels);
     }
   }
 
-  processNotification(ScrollNotification notification, int index) {
-    if (notification is ScrollStartNotification && !_scrollingActive) {
-      _scrollingController = _scrollControllers[index];
-      _scrollingActive = true;
-      return;
-    }
-
-    if (identical(_scrollControllers[index], _scrollingController) &&
-        _scrollingActive) {
-      if (notification is ScrollEndNotification) {
-        _scrollingController = null;
-        _scrollingActive = false;
-        return;
-      }
-
-      if (notification is ScrollUpdateNotification) {
-        _offset = _scrollingController.offset;
-        update();
-        if (_otherAxis != null) _otherAxis.update();
+  /// Jumps every item in the list to the given [offset],
+  /// except the ones that are already at the correct offset.
+  @override
+  void jumpTo(double offset) {
+    _offset = offset;
+    for (ScrollPosition position in _positions) {
+      if (position.pixels != _offset) {
+        position.jumpTo(_offset);
       }
     }
   }

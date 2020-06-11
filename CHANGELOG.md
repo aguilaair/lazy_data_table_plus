@@ -1,3 +1,8 @@
+## [0.1.4]
+
+* Changed NotificationListener to GestureDetector.
+* This allows for the ability to scroll in both directions at the same time.(diagonally)
+
 ## [0.1.3]
 
 * Added DataTableDimensions, which holds information about the dimensions of the table.

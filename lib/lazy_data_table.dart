@@ -2,6 +2,7 @@ library lazy_data_table;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
+import 'package:flutter/scheduler.dart';
 
 /// Create a lazily loaded data table.
 ///
@@ -78,47 +79,65 @@ class LazyDataTable extends StatefulWidget {
   @override
   _LazyDataTableState createState() => table;
 
+  /// Jump the table to the given cell.
+  void jumpToCell(int column, int row) {
+    table.jumpToCell(column, row);
+  }
+
   /// Jump the table to the given location.
-  void jumpTo(int column, int row) {
-    table.jumpTo(column, row);
+  void jumpTo(double x, double y) {
+    table.jumpTo(x, y);
   }
 }
 
-class _LazyDataTableState extends State<LazyDataTable> {
-  _CustomScrollController _horizontalControllers = _CustomScrollController();
-  _CustomScrollController _verticalControllers = _CustomScrollController();
+class _LazyDataTableState extends State<LazyDataTable>
+    with TickerProviderStateMixin {
+  _CustomScrollController _horizontalControllers;
+  _CustomScrollController _verticalControllers;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _horizontalControllers = _CustomScrollController(this);
+    _verticalControllers = _CustomScrollController(this);
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: <Widget>[
-        widget.rowHeaderBuilder != null
-            ? SizedBox(
-                width: widget.tableDimensions.rowHeaderWidth,
-                child: Column(
-                  children: <Widget>[
-                    // Corner widget
-                    SizedBox(
-                      height: widget.tableDimensions.columnHeaderHeight,
-                      width: widget.tableDimensions.rowHeaderWidth,
-                      child: widget.cornerWidget != null
-                          ? Container(
-                              decoration: BoxDecoration(
-                                color: widget.tableTheme.cornerColor,
-                                border: widget.tableTheme.cornerBorder,
-                              ),
-                              child: widget.cornerWidget,
-                            )
-                          : Container(),
-                    ),
-                    // Row headers
-                    Expanded(
-                      child: NotificationListener(
-                        onNotification: (ScrollNotification notification) {
-                          _verticalControllers
-                              .processNotification(notification);
-                          return true;
-                        },
+    return GestureDetector(
+      onPanUpdate: (DragUpdateDetails details) {
+        jump(-details.delta.dx, -details.delta.dy);
+      },
+      onPanEnd: (DragEndDetails details) {
+        _verticalControllers
+            .setVelocity(-details.velocity.pixelsPerSecond.dy / 100);
+        _horizontalControllers
+            .setVelocity(-details.velocity.pixelsPerSecond.dx / 100);
+      },
+      child: Row(
+        children: <Widget>[
+          widget.rowHeaderBuilder != null
+              ? SizedBox(
+                  width: widget.tableDimensions.rowHeaderWidth,
+                  child: Column(
+                    children: <Widget>[
+                      // Corner widget
+                      SizedBox(
+                        height: widget.tableDimensions.columnHeaderHeight,
+                        width: widget.tableDimensions.rowHeaderWidth,
+                        child: widget.cornerWidget != null
+                            ? Container(
+                                decoration: BoxDecoration(
+                                  color: widget.tableTheme.cornerColor,
+                                  border: widget.tableTheme.cornerBorder,
+                                ),
+                                child: widget.cornerWidget,
+                              )
+                            : Container(),
+                      ),
+                      // Row headers
+                      Expanded(
                         child: ListView.builder(
                             scrollDirection: Axis.vertical,
                             controller: _verticalControllers,
@@ -135,67 +154,53 @@ class _LazyDataTableState extends State<LazyDataTable> {
                               );
                             }),
                       ),
-                    )
-                  ],
-                ),
-              )
-            : Container(),
-        Expanded(
+                    ],
+                  ),
+                )
+              : Container(),
+          Expanded(
             child: Column(
-          children: <Widget>[
-            // Column headers
-            widget.columnHeaderBuilder != null
-                ? SizedBox(
-                    height: widget.tableDimensions.columnHeaderHeight,
-                    child: NotificationListener(
-                      onNotification: (ScrollNotification notification) {
-                        _horizontalControllers
-                            .processNotification(notification);
-                        return true;
-                      },
-                      child: ListView.builder(
-                          scrollDirection: Axis.horizontal,
-                          controller: _horizontalControllers,
-                          itemCount: widget.columns,
-                          itemBuilder: (__, i) {
-                            return Container(
-                              height: widget.tableDimensions.columnHeaderHeight,
-                              width: widget.tableDimensions.cellWidth,
-                              decoration: BoxDecoration(
-                                color: widget.tableTheme.columnHeaderColor,
-                                border: widget.tableTheme.columnHeaderBorder,
-                              ),
-                              child: widget.columnHeaderBuilder(i),
-                            );
-                          }),
-                    ),
-                  )
-                : Container(),
-            // Main data
-            Expanded(
-              child: NotificationListener(
-                onNotification: (ScrollNotification notification) {
-                  _verticalControllers.processNotification(notification);
-                  return true;
-                },
-                child: ListView.builder(
-                    scrollDirection: Axis.vertical,
-                    shrinkWrap: true,
-                    controller: _verticalControllers,
-                    itemCount: widget.rows,
-                    itemBuilder: (_, i) {
-                      return SizedBox(
-                        height: widget.tableDimensions.cellHeight,
-                        child: NotificationListener(
-                          onNotification: (ScrollNotification notification) {
-                            _horizontalControllers
-                                .processNotification(notification);
-                            return true;
-                          },
+              children: <Widget>[
+                // Column headers
+                widget.columnHeaderBuilder != null
+                    ? SizedBox(
+                        height: widget.tableDimensions.columnHeaderHeight,
+                        child: ListView.builder(
+                            scrollDirection: Axis.horizontal,
+                            controller: _horizontalControllers,
+                            itemCount: widget.columns,
+                            itemBuilder: (__, i) {
+                              return Container(
+                                height:
+                                    widget.tableDimensions.columnHeaderHeight,
+                                width: widget.tableDimensions.cellWidth,
+                                decoration: BoxDecoration(
+                                  color: widget.tableTheme.columnHeaderColor,
+                                  border: widget.tableTheme.columnHeaderBorder,
+                                ),
+                                child: widget.columnHeaderBuilder(i),
+                              );
+                            }),
+                      )
+                    : Container(),
+                // Main data
+                Expanded(
+                  // List of rows
+                  child: ListView.builder(
+                      scrollDirection: Axis.vertical,
+                      shrinkWrap: true,
+                      controller: _verticalControllers,
+                      physics: NeverScrollableScrollPhysics(),
+                      itemCount: widget.rows,
+                      itemBuilder: (_, i) {
+                        // Single row
+                        return SizedBox(
+                          height: widget.tableDimensions.cellHeight,
                           child: ListView.builder(
                               scrollDirection: Axis.horizontal,
                               shrinkWrap: true,
                               controller: _horizontalControllers,
+                              physics: NeverScrollableScrollPhysics(),
                               itemCount: widget.columns,
                               itemBuilder: (__, j) {
                                 return Container(
@@ -208,21 +213,33 @@ class _LazyDataTableState extends State<LazyDataTable> {
                                   child: widget.dataCellBuilder(i, j),
                                 );
                               }),
-                        ),
-                      );
-                    }),
-              ),
-            )
-          ],
-        ))
-      ],
+                        );
+                      }),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 
-  /// Jump the table to the given location.
-  jumpTo(int column, int row) {
+  /// Jump the table to the given cell.
+  void jumpToCell(int column, int row) {
     _horizontalControllers.jumpTo(column * widget.tableDimensions.cellWidth);
     _verticalControllers.jumpTo(row * widget.tableDimensions.cellHeight);
+  }
+
+  /// Jump the table to the given location.
+  void jumpTo(double x, double y) {
+    _horizontalControllers.jumpTo(x);
+    _verticalControllers.jumpTo(y);
+  }
+
+  /// Jump to a relative location from the current location.
+  void jump(double x, double y) {
+    _horizontalControllers.jump(x);
+    _verticalControllers.jump(y);
   }
 }
 
@@ -290,16 +307,37 @@ class DataTableTheme {
 ///
 /// This controller stores all their attached [ScrollPosition] in a list,
 /// and when given a notification via [processNotification], it will scroll
-/// every ScrollPosition in that list to the same [_offset].
+/// every ScrollPosition in that list to the same [offset].
 class _CustomScrollController extends ScrollController {
+  _CustomScrollController(TickerProvider provider) : super() {
+    _ticker = provider.createTicker((_) {
+      jumpTo(offset + _velocity);
+      _velocity *= 0.9;
+      if (_velocity < 0.1 && _velocity > -0.1) {
+        _ticker.stop();
+      }
+    });
+  }
+
+  /// List of [ScrollPosition].
   List<ScrollPosition> _positions = List();
-  double _offset = 0;
+
+  /// The offset of the ScrollPositions.
+  double offset = 0;
+
+  /// Ticker to calculate the [_velocity].
+  Ticker _ticker;
+
+  /// The velocity of the controller.
+  /// The [_ticker] will tick while the velocity
+  /// is not between -0.1 and 0.1.
+  double _velocity;
 
   /// Stores given [ScrollPosition] in the list and
   /// set the initial offset of that ScrollPosition.
   @override
   void attach(ScrollPosition position) {
-    position.correctPixels(_offset);
+    position.correctPixels(offset);
     _positions.add(position);
   }
 
@@ -310,21 +348,39 @@ class _CustomScrollController extends ScrollController {
   }
 
   /// Processes notification from one of the [ScrollPositions] in the list.
-  processNotification(ScrollNotification notification) {
+  void processNotification(ScrollNotification notification) {
     if (notification is ScrollUpdateNotification) {
       jumpTo(notification.metrics.pixels);
     }
   }
 
-  /// Jumps every item in the list to the given [offset],
+  /// Jumps every item in the list to the given [value],
   /// except the ones that are already at the correct offset.
   @override
-  void jumpTo(double offset) {
-    _offset = offset;
+  void jumpTo(double value) {
+    if (_positions[0] != null && value > _positions[0].maxScrollExtent) {
+      offset = _positions[0].maxScrollExtent;
+    } else if (value < 0) {
+      offset = 0;
+    } else {
+      offset = value;
+    }
     for (ScrollPosition position in _positions) {
-      if (position.pixels != _offset) {
-        position.jumpTo(_offset);
+      if (position.pixels != offset) {
+        position.jumpTo(offset);
       }
     }
+  }
+
+  /// Jump to [offset] + [value].
+  void jump(double value) {
+    jumpTo(offset + value);
+  }
+
+  /// Set [_velocity] to new value.
+  void setVelocity(double velocity) {
+    if (_ticker.isActive) _ticker.stop();
+    _velocity = velocity;
+    _ticker.start();
   }
 }

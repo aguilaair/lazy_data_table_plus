@@ -104,6 +104,13 @@ class _LazyDataTableState extends State<LazyDataTable>
   }
 
   @override
+  void dispose() {
+    _horizontalControllers.dispose();
+    _verticalControllers.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onPanUpdate: (DragUpdateDetails details) {
@@ -141,6 +148,7 @@ class _LazyDataTableState extends State<LazyDataTable>
                         child: ListView.builder(
                             scrollDirection: Axis.vertical,
                             controller: _verticalControllers,
+                            physics: NeverScrollableScrollPhysics(),
                             itemCount: widget.rows,
                             itemBuilder: (__, i) {
                               return Container(
@@ -168,6 +176,7 @@ class _LazyDataTableState extends State<LazyDataTable>
                         child: ListView.builder(
                             scrollDirection: Axis.horizontal,
                             controller: _horizontalControllers,
+                            physics: NeverScrollableScrollPhysics(),
                             itemCount: widget.columns,
                             itemBuilder: (__, i) {
                               return Container(
@@ -382,5 +391,11 @@ class _CustomScrollController extends ScrollController {
     if (_ticker.isActive) _ticker.stop();
     _velocity = velocity;
     _ticker.start();
+  }
+
+  @override
+  void dispose() {
+    _ticker.dispose();
+    super.dispose();
   }
 }

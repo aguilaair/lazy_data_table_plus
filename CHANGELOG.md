@@ -1,3 +1,8 @@
+## [0.1.5]
+
+* Fixed bug that caused headers to scroll separately.
+* Expanded example.
+
 ## [0.1.4]
 
 * Changed NotificationListener to GestureDetector.

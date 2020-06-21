@@ -16,11 +16,11 @@ This widget is based on [table-sticky-headers](https://pub.dev/packages/table_st
 
 ## Usage
 
-To use this widget, add `lazy_data_table: ^0.1.4` to your dependencies in `pubspec.yaml`
+To use this widget, add `lazy_data_table: ^0.1.5` to your dependencies in `pubspec.yaml`
 
 ```yaml
 dependencies:
-  lazy_data_table: ^0.1.4
+  lazy_data_table: ^0.1.5
 ```
 
 Then the package can be included in a file with:

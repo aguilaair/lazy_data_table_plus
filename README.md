@@ -1,4 +1,4 @@
-# lazy_data_table
+# lazy_data_table_plus
 
 A Flutter widget data table that can be loaded lazily. The table also has a column header row and a row header column that will stay in view.
 (This widget is still in development, and may not work 100%)
@@ -12,21 +12,21 @@ This widget is based on [table-sticky-headers](https://pub.dev/packages/table_st
 * Row header column stays in view
 * Items are loaded lazily
 
-![img not loaded](https://gitlab.com/_Naomi/lazy_data_table/-/raw/master/example/lazy_data_table_example.gif "lazy_data_table example")
+![img not loaded](https://github.com/aguilaair/lazy_data_table_plus/-/raw/master/example/lazy_data_table_plus_example.gif "lazy_data_table_plus example")
 
 ## Usage
 
-To use this widget, add `lazy_data_table: ^0.1.5` to your dependencies in `pubspec.yaml`
+To use this widget, add `lazy_data_table_plus: ^0.1.5` to your dependencies in `pubspec.yaml`
 
 ```yaml
 dependencies:
-  lazy_data_table: ^0.1.5
+  lazy_data_table_plus: ^0.1.5
 ```
 
 Then the package can be included in a file with:
 
 ```dart
-import 'package:lazy_data_table/lazy_data_table.dart';
+import 'package:lazy_data_table_plus/lazy_data_table_plus.dart';
 ```
 
 And then the LazyDataTable can be used as following:  
@@ -60,4 +60,4 @@ LazyDataTable(
 ```
 
 ## Issues
-If you have any problems or even suggestions feel free leave them [here](https://gitlab.com/_Naomi/lazy_data_table/-/issues)
+If you have any problems or even suggestions feel free leave them [here](https://gitlab.com/_Naomi/lazy_data_table_plus/-/issues)

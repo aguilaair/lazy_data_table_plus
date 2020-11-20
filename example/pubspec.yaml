@@ -4,7 +4,7 @@ description: example
 dependencies:
   flutter:
     sdk: flutter
-  lazy_data_table:
+  lazy_data_table_plus:
     path: ../
 
 dev_dependencies:

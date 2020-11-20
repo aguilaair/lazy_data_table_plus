@@ -1,4 +1,4 @@
-library lazy_data_table;
+library lazy_data_table_plus;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';

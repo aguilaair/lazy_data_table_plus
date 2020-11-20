@@ -20,7 +20,7 @@ To use this widget, add `lazy_data_table_plus: ^0.1.5` to your dependencies in `
 
 ```yaml
 dependencies:
-  lazy_data_table_plus: ^0.1.5
+  lazy_data_table_plus: ^0.1.6
 ```
 
 Then the package can be included in a file with:

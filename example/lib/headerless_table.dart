@@ -15,7 +15,7 @@ class HeaderlessTable extends StatelessWidget {
           cellHeight: 50,
           cellWidth: 100,
         ),
-        tableTheme: DataTableTheme(
+        tableTheme: LazyDataTableTheme(
           cellBorder: Border.all(color: Colors.black12),
           cellColor: Colors.white,
         ),

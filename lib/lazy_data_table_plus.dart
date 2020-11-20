@@ -22,7 +22,7 @@ class LazyDataTable extends StatefulWidget {
     this.tableDimensions = const DataTableDimensions(),
 
     // Theme of the table elements.
-    this.tableTheme = const DataTableTheme(),
+    this.tableTheme = const LazyDataTableTheme(),
 
     // Builder function for the column header.
     this.columnHeaderBuilder,
@@ -61,7 +61,7 @@ class LazyDataTable extends StatefulWidget {
 
   // Theme of the table
   /// The theme of the table cells and headers.
-  final DataTableTheme tableTheme;
+  final LazyDataTableTheme tableTheme;
 
   // Builder functions
   /// The builder function for a column header.
@@ -275,8 +275,8 @@ class DataTableDimensions {
 }
 
 /// Data class for the theme of a [LazyDataTable].
-class DataTableTheme {
-  const DataTableTheme({
+class LazyDataTableTheme {
+  const LazyDataTableTheme({
     this.columnHeaderBorder,
     this.rowHeaderBorder,
     this.cellBorder,

@@ -17,7 +17,7 @@ class SimpleTable extends StatelessWidget {
           columnHeaderHeight: 50,
           rowHeaderWidth: 75,
         ),
-        tableTheme: DataTableTheme(
+        tableTheme: LazyDataTableTheme(
           columnHeaderBorder: Border.all(color: Colors.black38),
           rowHeaderBorder: Border.all(color: Colors.black38),
           cellBorder: Border.all(color: Colors.black12),

@@ -12,7 +12,7 @@ This widget is based on [table-sticky-headers](https://pub.dev/packages/table_st
 * Row header column stays in view
 * Items are loaded lazily
 
-![img not loaded](https://github.com/aguilaair/lazy_data_table_plus/-/raw/master/example/lazy_data_table_plus_example.gif "lazy_data_table_plus example")
+![img not loaded](https://github.com/aguilaair/lazy_data_table_plus/raw/master/example/lazy_data_table_plus_example.gif "lazy_data_table_plus example")
 
 ## Usage
 

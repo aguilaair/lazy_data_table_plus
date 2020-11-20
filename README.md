@@ -60,4 +60,4 @@ LazyDataTable(
 ```
 
 ## Issues
-If you have any problems or even suggestions feel free leave them [here](https://gitlab.com/_Naomi/lazy_data_table_plus/-/issues)
+If you have any problems or even suggestions feel free leave them [here](https://github.com/aguilaair/lazy_data_table_plus/issues)

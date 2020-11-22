@@ -1,3 +1,7 @@
+## [0.2.1]
+
+* Forgot to update docs!
+
 ## [0.2.0]
 
 This release brings lazy_data_table_plus on-par with lazy_data_table after several fixes from the author!

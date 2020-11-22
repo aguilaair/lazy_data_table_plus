@@ -1,3 +1,11 @@
+## [0.2.0]
+
+This release brings lazy_data_table_plus on-par with lazy_data_table after several fixes from the author!
+
+* Updated docs to new dependency.
+* Fix Scroll issue (Fixed by Naomi on lazy_data_table)
+* Change TableDimensions to LazyDataTableDimensions (Chnaged by Naomi on lazy_data_table)
+
 ## [0.1.6]
 
 * Fixed bug that stopped themeing from happening.

@@ -11,7 +11,7 @@ class HeaderlessTable extends StatelessWidget {
       body: LazyDataTable(
         rows: 100,
         columns: 100,
-        tableDimensions: DataTableDimensions(
+        tableDimensions: LazyDataTableDimensions(
           cellHeight: 50,
           cellWidth: 100,
         ),

@@ -1,5 +1,6 @@
-library lazy_data_table_plus;
+library lazy_data_table;
 
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
 import 'package:flutter/scheduler.dart';
@@ -19,7 +20,7 @@ class LazyDataTable extends StatefulWidget {
     @required this.rows,
 
     // Dimensions of the table elements.
-    this.tableDimensions = const DataTableDimensions(),
+    this.tableDimensions = const LazyDataTableDimensions(),
 
     // Theme of the table elements.
     this.tableTheme = const LazyDataTableTheme(),
@@ -57,7 +58,7 @@ class LazyDataTable extends StatefulWidget {
 
   // Size of cells and headers
   /// The dimensions of the table cells and headers.
-  final DataTableDimensions tableDimensions;
+  final LazyDataTableDimensions tableDimensions;
 
   // Theme of the table
   /// The theme of the table cells and headers.
@@ -112,131 +113,182 @@ class _LazyDataTableState extends State<LazyDataTable>
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onPanUpdate: (DragUpdateDetails details) {
-        jump(-details.delta.dx, -details.delta.dy);
+    return Listener(
+      onPointerSignal: (pointerSignal) {
+        if (pointerSignal is PointerScrollEvent) {
+          jump(pointerSignal.scrollDelta.dx, pointerSignal.scrollDelta.dy);
+        }
       },
-      onPanEnd: (DragEndDetails details) {
-        _verticalControllers
-            .setVelocity(-details.velocity.pixelsPerSecond.dy / 100);
-        _horizontalControllers
-            .setVelocity(-details.velocity.pixelsPerSecond.dx / 100);
-      },
-      child: Row(
-        children: <Widget>[
-          widget.rowHeaderBuilder != null
-              ? SizedBox(
-                  width: widget.tableDimensions.rowHeaderWidth,
-                  child: Column(
-                    children: <Widget>[
-                      // Corner widget
-                      SizedBox(
-                        height: widget.tableDimensions.columnHeaderHeight,
-                        width: widget.tableDimensions.rowHeaderWidth,
-                        child: widget.cornerWidget != null
-                            ? Container(
-                                decoration: BoxDecoration(
-                                  color: widget.tableTheme.cornerColor,
-                                  border: widget.tableTheme.cornerBorder,
-                                ),
-                                child: widget.cornerWidget,
-                              )
-                            : Container(),
-                      ),
-                      // Row headers
-                      Expanded(
-                        child: ListView.builder(
-                            scrollDirection: Axis.vertical,
-                            controller: _verticalControllers,
-                            physics: NeverScrollableScrollPhysics(),
-                            itemCount: widget.rows,
-                            itemBuilder: (__, i) {
-                              return Container(
-                                height: widget.tableDimensions.cellHeight,
-                                width: widget.tableDimensions.rowHeaderWidth,
-                                decoration: BoxDecoration(
-                                  color: widget.tableTheme.rowHeaderColor,
-                                  border: widget.tableTheme.rowHeaderBorder,
-                                ),
-                                child: widget.rowHeaderBuilder(i),
-                              );
-                            }),
-                      ),
-                    ],
-                  ),
-                )
-              : Container(),
-          Expanded(
-            child: Column(
-              children: <Widget>[
-                // Column headers
-                widget.columnHeaderBuilder != null
-                    ? SizedBox(
-                        height: widget.tableDimensions.columnHeaderHeight,
-                        child: ListView.builder(
-                            scrollDirection: Axis.horizontal,
-                            controller: _horizontalControllers,
-                            physics: NeverScrollableScrollPhysics(),
-                            itemCount: widget.columns,
-                            itemBuilder: (__, i) {
-                              return Container(
-                                height:
-                                    widget.tableDimensions.columnHeaderHeight,
-                                width: widget.tableDimensions.cellWidth,
-                                decoration: BoxDecoration(
-                                  color: widget.tableTheme.columnHeaderColor,
-                                  border: widget.tableTheme.columnHeaderBorder,
-                                ),
-                                child: widget.columnHeaderBuilder(i),
-                              );
-                            }),
-                      )
-                    : Container(),
-                // Main data
-                Expanded(
-                  // List of rows
-                  child: ListView.builder(
-                      scrollDirection: Axis.vertical,
-                      shrinkWrap: true,
-                      controller: _verticalControllers,
-                      physics: NeverScrollableScrollPhysics(),
-                      itemCount: widget.rows,
-                      itemBuilder: (_, i) {
-                        // Single row
-                        return SizedBox(
-                          height: widget.tableDimensions.cellHeight,
+      child: GestureDetector(
+        onPanUpdate: (DragUpdateDetails details) {
+          jump(-details.delta.dx, -details.delta.dy);
+        },
+        onPanEnd: (DragEndDetails details) {
+          _verticalControllers
+              .setVelocity(-details.velocity.pixelsPerSecond.dy / 100);
+          _horizontalControllers
+              .setVelocity(-details.velocity.pixelsPerSecond.dx / 100);
+        },
+        child: Row(
+          children: <Widget>[
+            widget.rowHeaderBuilder != null
+                ? SizedBox(
+                    width: widget.tableDimensions.rowHeaderWidth,
+                    child: Column(
+                      children: <Widget>[
+                        // Corner widget
+                        SizedBox(
+                          height: widget.tableDimensions.columnHeaderHeight,
+                          width: widget.tableDimensions.rowHeaderWidth,
+                          child: widget.cornerWidget != null
+                              ? Container(
+                                  decoration: BoxDecoration(
+                                    color: widget.tableTheme.cornerColor,
+                                    border: widget.tableTheme.cornerBorder,
+                                  ),
+                                  child: widget.cornerWidget,
+                                )
+                              : Container(),
+                        ),
+                        // Row headers
+                        Expanded(
+                          child: ListView.builder(
+                              scrollDirection: Axis.vertical,
+                              controller: _verticalControllers,
+                              physics: NeverScrollableScrollPhysics(),
+                              itemCount: widget.rows,
+                              itemBuilder: (__, i) {
+                                return Container(
+                                  height: widget
+                                          .tableDimensions.customCellHeight
+                                          .containsKey(i)
+                                      ? widget
+                                          .tableDimensions.customCellHeight[i]
+                                      : widget.tableDimensions.cellHeight,
+                                  width: widget.tableDimensions.rowHeaderWidth,
+                                  decoration: BoxDecoration(
+                                    color: widget.tableTheme.rowHeaderColor,
+                                    border: widget.tableTheme.rowHeaderBorder,
+                                  ),
+                                  child: widget.rowHeaderBuilder(i),
+                                );
+                              }),
+                        ),
+                      ],
+                    ),
+                  )
+                : Container(),
+            Expanded(
+              child: Column(
+                children: <Widget>[
+                  // Column headers
+                  widget.columnHeaderBuilder != null
+                      ? SizedBox(
+                          height: widget.tableDimensions.columnHeaderHeight,
                           child: ListView.builder(
                               scrollDirection: Axis.horizontal,
-                              shrinkWrap: true,
                               controller: _horizontalControllers,
                               physics: NeverScrollableScrollPhysics(),
                               itemCount: widget.columns,
-                              itemBuilder: (__, j) {
+                              itemBuilder: (__, i) {
                                 return Container(
-                                  height: widget.tableDimensions.cellHeight,
-                                  width: widget.tableDimensions.cellWidth,
+                                  height:
+                                      widget.tableDimensions.columnHeaderHeight,
+                                  width: widget.tableDimensions.customCellWidth
+                                          .containsKey(i)
+                                      ? widget
+                                          .tableDimensions.customCellWidth[i]
+                                      : widget.tableDimensions.cellWidth,
                                   decoration: BoxDecoration(
-                                    color: widget.tableTheme.cellColor,
-                                    border: widget.tableTheme.cellBorder,
+                                    color: widget.tableTheme.columnHeaderColor,
+                                    border:
+                                        widget.tableTheme.columnHeaderBorder,
                                   ),
-                                  child: widget.dataCellBuilder(i, j),
+                                  child: widget.columnHeaderBuilder(i),
                                 );
                               }),
-                        );
-                      }),
-                ),
-              ],
+                        )
+                      : Container(),
+                  // Main data
+                  Expanded(
+                    // List of rows
+                    child: ListView.builder(
+                        scrollDirection: Axis.vertical,
+                        shrinkWrap: true,
+                        controller: _verticalControllers,
+                        physics: NeverScrollableScrollPhysics(),
+                        itemCount: widget.rows,
+                        itemBuilder: (_, i) {
+                          // Single row
+                          return SizedBox(
+                            height: widget.tableDimensions.customCellHeight
+                                    .containsKey(i)
+                                ? widget.tableDimensions.customCellHeight[i]
+                                : widget.tableDimensions.cellHeight,
+                            child: ListView.builder(
+                                scrollDirection: Axis.horizontal,
+                                shrinkWrap: true,
+                                controller: _horizontalControllers,
+                                physics: NeverScrollableScrollPhysics(),
+                                itemCount: widget.columns,
+                                itemBuilder: (__, j) {
+                                  return Container(
+                                    height: widget
+                                            .tableDimensions.customCellHeight
+                                            .containsKey(i)
+                                        ? widget
+                                            .tableDimensions.customCellHeight[i]
+                                        : widget.tableDimensions.cellHeight,
+                                    width: widget
+                                            .tableDimensions.customCellWidth
+                                            .containsKey(j)
+                                        ? widget
+                                            .tableDimensions.customCellWidth[j]
+                                        : widget.tableDimensions.cellWidth,
+                                    decoration: BoxDecoration(
+                                      color: widget.tableTheme.cellColor,
+                                      border: widget.tableTheme.cellBorder,
+                                    ),
+                                    child: widget.dataCellBuilder(i, j),
+                                  );
+                                }),
+                          );
+                        }),
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
   /// Jump the table to the given cell.
   void jumpToCell(int column, int row) {
-    _horizontalControllers.jumpTo(column * widget.tableDimensions.cellWidth);
-    _verticalControllers.jumpTo(row * widget.tableDimensions.cellHeight);
+    double customWidth = 0;
+    int customWidthCells = 0;
+    for (int i = 0; i < column; i++) {
+      if (widget.tableDimensions.customCellWidth.containsKey(i)) {
+        customWidth += widget.tableDimensions.customCellWidth[i];
+        customWidthCells++;
+      }
+    }
+    _horizontalControllers.jumpTo(
+        (column - customWidthCells) * widget.tableDimensions.cellWidth +
+            customWidth);
+
+    double customHeight = 0;
+    int customHeightCells = 0;
+    for (int i = 0; i < column; i++) {
+      if (widget.tableDimensions.customCellHeight.containsKey(i)) {
+        customHeight += widget.tableDimensions.customCellHeight[i];
+        customHeightCells++;
+      }
+    }
+    _verticalControllers.jumpTo(
+        (row - customHeightCells) * widget.tableDimensions.cellHeight +
+            customHeight);
   }
 
   /// Jump the table to the given location.
@@ -253,12 +305,14 @@ class _LazyDataTableState extends State<LazyDataTable>
 }
 
 /// Data class for the dimensions of a [LazyDataTable].
-class DataTableDimensions {
-  const DataTableDimensions({
+class LazyDataTableDimensions {
+  const LazyDataTableDimensions({
     this.cellHeight = 50,
     this.cellWidth = 50,
     this.columnHeaderHeight = 50,
     this.rowHeaderWidth = 50,
+    this.customCellHeight = const {},
+    this.customCellWidth = const {},
   });
 
   /// Height of a cell and row header.
@@ -272,6 +326,12 @@ class DataTableDimensions {
 
   /// Width of a row header.
   final double rowHeaderWidth;
+
+  /// Map with the custom height for a certain rows.
+  final Map<int, double> customCellHeight;
+
+  /// Map with the custom width for certain columns.
+  final Map<int, double> customCellWidth;
 }
 
 /// Data class for the theme of a [LazyDataTable].

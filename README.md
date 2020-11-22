@@ -36,7 +36,7 @@ And then the LazyDataTable can be used as following:
 LazyDataTable(
   rows: 100,
   columns: 100,
-  tableDimensions: DataTableDimensions(
+  tableDimensions: LazyDataTableDimensions(
     cellHeight: 50,
     cellWidth: 100,
     columnHeaderHeight: 50,

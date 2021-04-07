@@ -424,7 +424,7 @@ class _CustomScrollController extends ScrollController {
   /// except the ones that are already at the correct offset.
   @override
   void jumpTo(double value) {
-    if (_positions[0] != null && value > _positions[0].maxScrollExtent) {
+    if (value > _positions[0].maxScrollExtent) {
       offset = _positions[0].maxScrollExtent;
     } else if (value < 0) {
       offset = 0;

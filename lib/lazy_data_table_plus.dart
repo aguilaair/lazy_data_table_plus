@@ -12,12 +12,12 @@ import 'package:flutter/scheduler.dart';
 /// and when either of those is not given, the corner widget should also not be given.
 class LazyDataTable extends StatefulWidget {
   LazyDataTable({
-    Key key,
+    Key? key,
     // Number of data columns.
-    @required this.columns,
+    required this.columns,
 
     // Number of data rows.
-    @required this.rows,
+    required this.rows,
 
     // Dimensions of the table elements.
     this.tableDimensions = const LazyDataTableDimensions(),
@@ -32,14 +32,11 @@ class LazyDataTable extends StatefulWidget {
     this.rowHeaderBuilder,
 
     // Builder function for the data cell.
-    @required this.dataCellBuilder,
+    required this.dataCellBuilder,
 
     // Corner widget.
     this.cornerWidget,
   }) : super(key: key) {
-    assert(columns != null);
-    assert(rows != null);
-    assert(dataCellBuilder != null);
     if (rowHeaderBuilder == null || columnHeaderBuilder == null) {
       assert(cornerWidget == null,
           "The corner widget is only allowed when you have both a column header and a row header.");
@@ -66,16 +63,16 @@ class LazyDataTable extends StatefulWidget {
 
   // Builder functions
   /// The builder function for a column header.
-  final Widget Function(int columnIndex) columnHeaderBuilder;
+  final Widget Function(int columnIndex)? columnHeaderBuilder;
 
   /// The builder function for a row header.
-  final Widget Function(int rowIndex) rowHeaderBuilder;
+  final Widget Function(int rowIndex)? rowHeaderBuilder;
 
   /// The builder function for a data cell.
   final Widget Function(int columnIndex, int rowIndex) dataCellBuilder;
 
   /// The widget for the upper-left corner.
-  final Widget cornerWidget;
+  final Widget? cornerWidget;
 
   @override
   _LazyDataTableState createState() => table;
@@ -93,8 +90,8 @@ class LazyDataTable extends StatefulWidget {
 
 class _LazyDataTableState extends State<LazyDataTable>
     with TickerProviderStateMixin {
-  _CustomScrollController _horizontalControllers;
-  _CustomScrollController _verticalControllers;
+  _CustomScrollController? _horizontalControllers;
+  _CustomScrollController? _verticalControllers;
 
   @override
   void initState() {
@@ -106,8 +103,8 @@ class _LazyDataTableState extends State<LazyDataTable>
 
   @override
   void dispose() {
-    _horizontalControllers.dispose();
-    _verticalControllers.dispose();
+    _horizontalControllers!.dispose();
+    _verticalControllers!.dispose();
     super.dispose();
   }
 
@@ -124,9 +121,9 @@ class _LazyDataTableState extends State<LazyDataTable>
           jump(-details.delta.dx, -details.delta.dy);
         },
         onPanEnd: (DragEndDetails details) {
-          _verticalControllers
+          _verticalControllers!
               .setVelocity(-details.velocity.pixelsPerSecond.dy / 100);
-          _horizontalControllers
+          _horizontalControllers!
               .setVelocity(-details.velocity.pixelsPerSecond.dx / 100);
         },
         child: Row(
@@ -170,7 +167,7 @@ class _LazyDataTableState extends State<LazyDataTable>
                                     color: widget.tableTheme.rowHeaderColor,
                                     border: widget.tableTheme.rowHeaderBorder,
                                   ),
-                                  child: widget.rowHeaderBuilder(i),
+                                  child: widget.rowHeaderBuilder!(i),
                                 );
                               }),
                         ),
@@ -204,7 +201,7 @@ class _LazyDataTableState extends State<LazyDataTable>
                                     border:
                                         widget.tableTheme.columnHeaderBorder,
                                   ),
-                                  child: widget.columnHeaderBuilder(i),
+                                  child: widget.columnHeaderBuilder!(i),
                                 );
                               }),
                         )
@@ -270,11 +267,11 @@ class _LazyDataTableState extends State<LazyDataTable>
     int customWidthCells = 0;
     for (int i = 0; i < column; i++) {
       if (widget.tableDimensions.customCellWidth.containsKey(i)) {
-        customWidth += widget.tableDimensions.customCellWidth[i];
+        customWidth += widget.tableDimensions.customCellWidth[i]!;
         customWidthCells++;
       }
     }
-    _horizontalControllers.jumpTo(
+    _horizontalControllers!.jumpTo(
         (column - customWidthCells) * widget.tableDimensions.cellWidth +
             customWidth);
 
@@ -282,25 +279,25 @@ class _LazyDataTableState extends State<LazyDataTable>
     int customHeightCells = 0;
     for (int i = 0; i < column; i++) {
       if (widget.tableDimensions.customCellHeight.containsKey(i)) {
-        customHeight += widget.tableDimensions.customCellHeight[i];
+        customHeight += widget.tableDimensions.customCellHeight[i]!;
         customHeightCells++;
       }
     }
-    _verticalControllers.jumpTo(
+    _verticalControllers!.jumpTo(
         (row - customHeightCells) * widget.tableDimensions.cellHeight +
             customHeight);
   }
 
   /// Jump the table to the given location.
   void jumpTo(double x, double y) {
-    _horizontalControllers.jumpTo(x);
-    _verticalControllers.jumpTo(y);
+    _horizontalControllers!.jumpTo(x);
+    _verticalControllers!.jumpTo(y);
   }
 
   /// Jump to a relative location from the current location.
   void jump(double x, double y) {
-    _horizontalControllers.jump(x);
-    _verticalControllers.jump(y);
+    _horizontalControllers!.jump(x);
+    _verticalControllers!.jump(y);
   }
 }
 
@@ -348,28 +345,28 @@ class LazyDataTableTheme {
   });
 
   /// [BoxBorder] for the column header.
-  final BoxBorder columnHeaderBorder;
+  final BoxBorder? columnHeaderBorder;
 
   /// [BoxBorder] for the row header.
-  final BoxBorder rowHeaderBorder;
+  final BoxBorder? rowHeaderBorder;
 
   /// [BoxBorder] for the cell.
-  final BoxBorder cellBorder;
+  final BoxBorder? cellBorder;
 
   /// [BoxBorder] for the corner widget.
-  final BoxBorder cornerBorder;
+  final BoxBorder? cornerBorder;
 
   /// [Color] for the column header.
-  final Color columnHeaderColor;
+  final Color? columnHeaderColor;
 
   /// [Color] for the row header.
-  final Color rowHeaderColor;
+  final Color? rowHeaderColor;
 
   /// [Color] for the cell.
-  final Color cellColor;
+  final Color? cellColor;
 
   /// [Color] for the corner widget.
-  final Color cornerColor;
+  final Color? cornerColor;
 }
 
 /// A custom synchronized scroll controller.
@@ -389,18 +386,18 @@ class _CustomScrollController extends ScrollController {
   }
 
   /// List of [ScrollPosition].
-  List<ScrollPosition> _positions = List();
+  List<ScrollPosition> _positions = [];
 
   /// The offset of the ScrollPositions.
   double offset = 0;
 
   /// Ticker to calculate the [_velocity].
-  Ticker _ticker;
+  late Ticker _ticker;
 
   /// The velocity of the controller.
   /// The [_ticker] will tick while the velocity
   /// is not between -0.1 and 0.1.
-  double _velocity;
+  late double _velocity;
 
   /// Stores given [ScrollPosition] in the list and
   /// set the initial offset of that ScrollPosition.

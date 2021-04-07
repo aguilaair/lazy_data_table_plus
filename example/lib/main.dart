@@ -18,12 +18,12 @@ class MyApp extends StatelessWidget {
       body: Center(
         child: Column(
           children: <Widget>[
-            RaisedButton(
+            ElevatedButton(
               child: Text("Simple table"),
               onPressed: () => Navigator.push(context,
                   MaterialPageRoute(builder: (context) => SimpleTable())),
             ),
-            RaisedButton(
+            ElevatedButton(
               child: Text("Header-less table"),
               onPressed: () => Navigator.push(context,
                   MaterialPageRoute(builder: (context) => HeaderlessTable())),
